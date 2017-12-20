@@ -5,6 +5,7 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import java.io.*;
 
 import java.util.List;
 
@@ -47,12 +48,13 @@ public class DumpJob implements Job, Watcher {
             }
             dumpChild(zk, outputDir + znode, "", "");
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
     private void dumpChild(ZooKeeper zk, String outputPath, String znodeParent, String znode) throws Exception {
 
+        try {
         String znodePath = znodeParent + znode;
 
         System.out.println("znodePath: " + znodePath);
@@ -76,6 +78,11 @@ public class DumpJob implements Job, Watcher {
         else {
             // this znode has no contents to write a plan file with the znode contents here
             writeZnode(zk, outputPath, currznode);
+        }
+        } catch (Exception e) {
+            // org.apache.zookeeper.KeeperException$NoNodeException
+            // KeeperErrorCode = NoNode for ...
+            System.out.println(e.getMessage());
         }
     }
 
